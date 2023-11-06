@@ -12,7 +12,7 @@ void imprime_vetor(int tam1, num* vet1)
 {
     for (int i = 0; i < tam1; i++)
     {
-        printf("Chave: %d ", vet1[i].value);
+        printf("Chave: %ld ", vet1[i].value);
         printf("Valor = %.2f\n", vet1[i].value2);
     }
 }
@@ -44,6 +44,25 @@ num *preenche_vetor2 (int tamseed2, int tam2)
     return vet2;
 }
 
+void InsertionSort(num* vet1, int tamanho)
+{
+    int i, j;
+    num chave;
+
+    for (i = 1; i < tamanho; i++)
+    {
+        chave = vet1[i];
+        j = i - 1;
+
+        while (j >= 0 && vet1[j].value > chave.value)
+        {
+            vet1[j + 1] = vet1[j];
+            j = j - 1;
+        }
+
+        vet1[j + 1] = chave;
+    }
+}
 
 
 
@@ -55,11 +74,18 @@ int main()
     int tamvet;
     start_master = clock();
     num *vet;
-    printf("Qual sera o tamanho do vetor desejado?\n[1]10000\n[2]50000\n[3]100000\n[4]500000\n[5]1000000");
+    printf("Qual sera o tamanho do vetor desejado?\n[1]10000\n[2]50000\n[3]100000\n[4]500000\n[5]1000000\n");
     scanf("%d",&tamvet);
 
     vet = preenche_vetor1(tamseed, tam[tamvet-1]);
-    ///imprime_vetor(tam[tamvet-1], vet);
+    start = clock();
+    InsertionSort(vet, tam[tamvet-1]);
+    end = clock();
+    double time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+
+    imprime_vetor(tam[tamvet-1], vet);
+        printf("\nTempo Insertion: %f", time_taken);
 
     free(vet);
 
