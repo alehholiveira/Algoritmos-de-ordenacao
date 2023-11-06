@@ -56,4 +56,4 @@ Para garantir a validade da análise, todos os métodos serão testados com o me
 
 ---
 
-**IMPORTANTE:** Certifique-se de documentar e relatar os resultados de forma clara e organizada. Considerando a natureza do projeto, a análise empírica dos algoritmos é fundamental para obter conclusões significativas sobre o desempenho de cada método de ordenação.
+**IMPORTANTE:** Documentar e relatar os resultados de forma clara e organizada. Considerando a natureza do projeto, a análise empírica dos algoritmos é fundamental para obter conclusões significativas sobre o desempenho de cada método de ordenação.
