@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1699884353 source:c:\users\aleto\desktop\programacao\estrutura de dados\algoritmos-de-ordenacao\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<math.h>
+
