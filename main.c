@@ -253,11 +253,13 @@ int main()
     printf("Qual sera o tamanho do vetor desejado?\n[1]10000\n[2]50000\n[3]100000\n[4]500000\n[5]1000000\n -> ");
     scanf("%d", &tamvet);
 
-    printf("Deseja que o seu vetor seja preenchido com o tipo 1 ou tipo 2?\n -> ");
+    printf("\nDeseja que o seu vetor seja preenchido com o tipo 1 ou tipo 2?\n");
+    printf("[TIPO 1]: Vetores com valor nao ordenado \n[TIPO 2]: Vetores com valores ordenados de forma crescente\n -> ");
     scanf("%d", &tipo);
 
     vet = determinatipo(tipo, tamseed, tamvet, tam);
 
+    printf("\n\n\tORDENANDO VETORES, AGUARDE...\n\n");
     start = clock();
     InsertionSort(vet, tam[tamvet - 1]);
     end = clock();
