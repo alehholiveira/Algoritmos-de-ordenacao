@@ -90,135 +90,276 @@ void bubbleSort(num *vetor, int tamanho)
 }
 
 
-void shellSort(num *vetor, int tamanho)
-{
-    for (int intervalo = tamanho / 2; intervalo > 0; intervalo /= 2)
-    {
-        for (int i = intervalo; i < tamanho; i++)
-        {
-            num temp = vetor[i];
-            int j;
-            for (j = i; j >= intervalo && vetor[j - intervalo].value < temp.value; j -= intervalo)
-            {
-                vetor[j] = vetor[j - intervalo];
+void shellSort(num *v, int n) {
+    int i, j, h;
+    num aux;
+
+    for (h = 1; h < n; h = 3 * h + 1);
+
+    while (h > 0) {
+        h = (h - 1) / 3;
+
+        for (i = h; i < n; i++) {
+            aux = v[i];
+            j = i;
+
+            while (j >= h && v[j - h].value < aux.value) {
+                v[j] = v[j - h];
+                j -= h;
             }
-            vetor[j] = temp;
+
+            v[j] = aux;
         }
     }
 }
 
-void mergeSort(num *vetor, int inicio, int fim)
+
+void Merge(num *vetor_principal, num *vetor_auxiliar, int index_vetor_inicio, int index_metade, int index_vetor_fim)
 {
-    if (inicio < fim)
+
+    int z;
+    int iv = index_vetor_inicio, ic = index_metade+1;
+
+    for(z = index_vetor_inicio; z<=index_vetor_fim; z++)
+    vetor_auxiliar[z] = vetor_principal[z];
+
+    z = index_vetor_inicio;
+
+    while (iv <= index_metade && ic<= index_vetor_fim)
     {
-        int meio = (inicio + fim) / 2;
-        mergeSort(vetor, inicio, meio);
-        mergeSort(vetor, meio + 1, fim);
-        merge(vetor, inicio, meio, fim);
+        if(vetor_auxiliar[iv].value >= vetor_auxiliar[ic].value){
+            vetor_principal[z++] = vetor_auxiliar[iv++];
+        }else{
+            vetor_principal[z++] = vetor_auxiliar[ic++];
+        }
+
+    }
+
+    while(iv <= index_metade){
+        vetor_principal[z++] = vetor_auxiliar[iv++];
+    }
+    while(ic <= index_vetor_fim){
+        vetor_principal[z++] = vetor_auxiliar[ic++];
     }
 }
 
-void merge(num *vetor, int inicio, int meio, int fim)
+void Sort(num * vetor_principal, num *vetor_auxiliar, int index_vetor_inicio, int index_vetor_fim)
 {
-    int i, j, k;
-    int n1 = meio - inicio + 1;
-    int n2 = fim - meio;
-    num *L = (num *)malloc(sizeof(num) * n1);
-    num *R = (num *)malloc(sizeof(num) * n2);
-
-    for (i = 0; i < n1; i++)
-        L[i] = vetor[inicio + i];
-    for (j = 0; j < n2; j++)
-        R[j] = vetor[meio + 1 + j];
-
-    i = 0;
-    j = 0;
-    k = inicio;
-    while (i < n1 && j < n2)
+    if(index_vetor_inicio < index_vetor_fim)
     {
-        if (L[i].value >= R[j].value)
+        int index_metade = (index_vetor_inicio + index_vetor_fim)/2;
+        Sort(vetor_principal, vetor_auxiliar,index_vetor_inicio, index_metade);
+        Sort(vetor_principal,vetor_auxiliar,index_metade + 1, index_vetor_fim);
+
+        if(vetor_principal[index_metade].value < vetor_principal[index_metade + 1].value)
         {
-            vetor[k] = L[i];
-            i++;
+            Merge(vetor_principal,vetor_auxiliar, index_vetor_inicio, index_metade, index_vetor_fim);
+        }
+    }
+
+}
+
+void mergeSort(num *vetor_principal, int tamanho_vetor)
+{
+    num *vetor_auxiliar = malloc(sizeof(num) * tamanho_vetor);
+    Sort(vetor_principal,vetor_auxiliar,0,tamanho_vetor-1);
+    free(vetor_auxiliar);
+}
+
+
+
+int particao (num *v, int LI, int LS)
+{
+    num aux;
+    unsigned long int pivo;
+    int e = LI, d = LS;
+    pivo = v[e].value;
+
+    while(e<d)
+    {
+        while(v[e].value >= pivo && (e<LS))
+        {
+            e++;
+        }
+        while(v[d].value < pivo && (d>LI))
+        {
+            d--;
+        }
+        if(e<d)
+        {
+            aux = v[e];
+            v[e] = v[d];
+            v[d] = aux;
+
+        }
+    }
+
+    aux = v[LI];
+    v[LI] = v[d];
+    v[d] = aux;
+
+    return d;
+}
+
+int particaomeio(num *v, long int LI, long int LS)
+{
+    num aux;
+    unsigned long int pivo;
+    long int e = LI, d = LS;
+    long int meio;
+
+    meio = (LI + LS) / 2;
+    pivo = v[meio].value;
+
+    while (e <= d)
+    {
+        while (v[e].value > pivo)
+        {
+            e++;
+        }
+        while (v[d].value < pivo)
+        {
+            d--;
+        }
+        if (e <= d)
+        {
+            aux = v[e];
+            v[e] = v[d];
+            v[d] = aux;
+            e++;
+            d--;
+        }
+    }
+
+    return e;
+}
+
+int particaofim (num *v, long int LI, long int LS)
+{
+    num aux;
+    unsigned long int pivo;
+    long int e = LI, d = LS;
+    pivo = v[d].value;
+
+    while(e<d)
+    {
+        while(v[e].value > pivo && (e<LS))
+        {
+            e++;
+        }
+        while(v[d].value <= pivo && (d>LI))
+        {
+            d--;
+        }
+        if(e<d)
+        {
+            aux = v[e];
+            v[e] = v[d];
+            v[d] = aux;
+
+        }
+    }
+
+    aux = v[LI];
+    v[LI] = v[d];
+    v[d] = aux;
+
+    return d;
+}
+
+void quicksort(num *v, long int LI, long int LS)
+{
+    while (LI < LS)
+    {
+        int p = particao(v, LI, LS);
+        if  (p- LI < LS - p)
+        {
+            quicksort(v, LI, p-1);
+            LI = p +1;
         }
         else
         {
-            vetor[k] = R[j];
-            j++;
+            quicksort(v, p+1, LS);
+            LS = p-1;
         }
-        k++;
     }
-
-    while (i < n1)
-    {
-        vetor[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2)
-    {
-        vetor[k] = R[j];
-        j++;
-        k++;
-    }
-
-    free(L);
-    free(R);
 }
 
-
-
-int particiona(num *vetor, int inicio, int fim)
+void quicksortmeio(num *v, long int LI, long int LS)
 {
-    num pivo = vetor[fim];
-    int i = inicio - 1;
-
-    for (int j = inicio; j < fim; j++)
+    if (LI < LS)
     {
-        if (vetor[j].value >= pivo.value)
-        {
-            i++;
-            num temp = vetor[i];
-            vetor[i] = vetor[j];
-            vetor[j] = temp;
-        }
+        int p = particaomeio(v, LI, LS);
+        quicksortmeio(v, LI, p - 1);
+        quicksortmeio(v, p, LS);
     }
-    num temp = vetor[i + 1];
-    vetor[i + 1] = vetor[fim];
-    vetor[fim] = temp;
-
-    return i + 1;
 }
 
-void quickSort(num vetor[], int inicio, int fim)
+
+void quicksortfim(num *v, int LI, int LS)
 {
-    int pilha[fim - inicio + 1];
-    int topo = -1;
-
-    pilha[++topo] = inicio;
-    pilha[++topo] = fim;
-
-    while (topo >= 0)
+    while (LI < LS)
     {
-        fim = pilha[topo--];
-        inicio = pilha[topo--];
-
-        int pivo_index = particiona(vetor, inicio, fim);
-
-        if (pivo_index - 1 > inicio)
+        int p = particaofim(v, LI, LS);
+        if  (p- LI < LS - p)
         {
-            pilha[++topo] = inicio;
-            pilha[++topo] = pivo_index - 1;
+            quicksortfim(v, LI, p-1);
+            LI = p +1;
         }
-
-        if (pivo_index + 1 < fim)
+        else
         {
-            pilha[++topo] = pivo_index + 1;
-            pilha[++topo] = fim;
+            quicksortfim(v, p+1, LS);
+            LS = p-1;
         }
     }
 }
+
+
+void heapify(num *vetor, int tamanho, int indice)
+{
+    int maior = indice;
+    int filho_esquerda = 2 * indice + 1;
+    int filho_direita = 2 * indice + 2;
+
+    // Verifica se o filho da esquerda é menor que a raiz
+    if (filho_esquerda < tamanho && vetor[filho_esquerda].value < vetor[maior].value)
+        maior = filho_esquerda;
+
+    // Verifica se o filho da direita é menor que a raiz
+    if (filho_direita < tamanho && vetor[filho_direita].value < vetor[maior].value)
+        maior = filho_direita;
+
+    // Se o maior não é a raiz, troca
+    if (maior != indice)
+    {
+        num temp = vetor[indice];
+        vetor[indice] = vetor[maior];
+        vetor[maior] = temp;
+
+        // Continua a heapify recursivamente no subárvore afetado
+        heapify(vetor, tamanho, maior);
+    }
+}
+
+void heapSort(num *vetor, int tamanho)
+{
+    // Constrói o heap (rearranja o array)
+    for (int i = tamanho / 2 - 1; i >= 0; i--)
+        heapify(vetor, tamanho, i);
+
+    // Extrai elementos um por um do heap
+    for (int i = tamanho - 1; i > 0; i--)
+    {
+        // Move a raiz (o maior elemento) para o final
+        num temp = vetor[0];
+        vetor[0] = vetor[i];
+        vetor[i] = temp;
+
+        // Chama o heapify na subárvore reduzida
+        heapify(vetor, i, 0);
+    }
+}
+
 
 num *determinatipo(int tipo, int tamseed, int tamvet, int tam[])
 {
@@ -249,7 +390,7 @@ int main()
     int tamvet, tipo = 0;
     /// rodar o mesmo tamanho e mesmo tipo variando a seed de 0 a 9 e depois mudar para tipo 2 e rodar de 10 a 19
     /// depois mudar o tamanho e variar as seeds novamente
-    int a = 0;
+    int a = 10;
     start_master = clock();
     num *vet;
 
@@ -260,50 +401,74 @@ int main()
     printf("\nDeseja que o seu vetor seja preenchido com o tipo 1 ou tipo 2?\n");
     printf("[TIPO 1]: Vetores com valor nao ordenado \n[TIPO 2]: Vetores com valores ordenados de forma crescente\n -> ");
     scanf("%d", &tipo);
+
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
     printf("\n\n\tORDENANDO VETORES, AGUARDE...\n\n");
+
     start = clock();
     InsertionSort(vet, tam[tamvet - 1]);
     end = clock();
     double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("\nTempo Insertion: %.9f", time_taken);
-
     free(vet);
 
-    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
 
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
     start = clock();
     bubbleSort(vet, tam[tamvet - 1]);
     end = clock();
     double time_taken2 = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("\nTempo Bubble: %.9f", time_taken2);
-
     free(vet);
-    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
 
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
     start = clock();
     shellSort(vet, tam[tamvet - 1]);
     end = clock();
     double time_taken3 = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("\nTempo Shell: %.9f", time_taken3);
-
     free(vet);
-    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
 
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
     start = clock();
-    mergeSort(vet, 0, tam[tamvet - 1] - 1);
+    mergeSort(vet, tam[tamvet - 1]);
     end = clock();
     double time_taken4 = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("\nTempo Merge: %.9f", time_taken4);
-
     free(vet);
-    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
 
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
     start = clock();
-    quickSort(vet, 0, tam[tamvet - 1]);
+    heapSort(vet, tam[tamvet - 1]);
     end = clock();
     double time_taken5 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo Quick: %.9f", time_taken5);
+    printf("\nTempo Heap: %.9f", time_taken5);
+    free(vet);
+
+
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
+    start = clock();
+    quicksort(vet,0, tam[tamvet-1]);
+    end = clock();
+    double time_taken6 = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("\nTempo QuickLI: %.9f", time_taken6);
+    free(vet);
+
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
+    start = clock();
+    quicksortfim(vet,0, tam[tamvet-1]);
+    end = clock();
+    double time_taken7 = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("\nTempo QuickLS: %.9f", time_taken7);
+    free(vet);
+
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
+    start = clock();
+    quicksortmeio(vet,0, tam[tamvet-1]);
+    end = clock();
+    double time_taken8 = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("\nTempo QuickMeio: %.9f", time_taken8);
+    imprime_vetor(tam[tamvet-1],vet);
     free(vet);
 
     return 0;
