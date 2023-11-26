@@ -114,56 +114,59 @@ void shellSort(num *v, int n) {
 }
 
 
-void Merge(num *vetor_principal, num *vetor_auxiliar, int index_vetor_inicio, int index_metade, int index_vetor_fim)
+void Merge(num *v, num *aux, int i, int m, int f)
 {
+    int k;
+    int iv = i, ic = m + 1;
 
-    int z;
-    int iv = index_vetor_inicio, ic = index_metade+1;
+    for (k = i; k <= f; k++)
+        aux[k] = v[k];
 
-    for(z = index_vetor_inicio; z<=index_vetor_fim; z++)
-    vetor_auxiliar[z] = vetor_principal[z];
+    k = i;
 
-    z = index_vetor_inicio;
-
-    while (iv <= index_metade && ic<= index_vetor_fim)
+    while (iv <= m && ic <= f)
     {
-        if(vetor_auxiliar[iv].value >= vetor_auxiliar[ic].value){
-            vetor_principal[z++] = vetor_auxiliar[iv++];
-        }else{
-            vetor_principal[z++] = vetor_auxiliar[ic++];
-        }
-
-    }
-
-    while(iv <= index_metade){
-        vetor_principal[z++] = vetor_auxiliar[iv++];
-    }
-    while(ic <= index_vetor_fim){
-        vetor_principal[z++] = vetor_auxiliar[ic++];
-    }
-}
-
-void Sort(num * vetor_principal, num *vetor_auxiliar, int index_vetor_inicio, int index_vetor_fim)
-{
-    if(index_vetor_inicio < index_vetor_fim)
-    {
-        int index_metade = (index_vetor_inicio + index_vetor_fim)/2;
-        Sort(vetor_principal, vetor_auxiliar,index_vetor_inicio, index_metade);
-        Sort(vetor_principal,vetor_auxiliar,index_metade + 1, index_vetor_fim);
-
-        if(vetor_principal[index_metade].value < vetor_principal[index_metade + 1].value)
+        if (aux[iv].value >= aux[ic].value)
         {
-            Merge(vetor_principal,vetor_auxiliar, index_vetor_inicio, index_metade, index_vetor_fim);
+            v[k++] = aux[iv++];
+        }
+        else
+        {
+            v[k++] = aux[ic++];
         }
     }
 
+    while (iv <= m)
+    {
+        v[k++] = aux[iv++];
+    }
+
+    while (ic <= f)
+    {
+        v[k++] = aux[ic++];
+    }
 }
 
-void mergeSort(num *vetor_principal, int tamanho_vetor)
+void Sort(num *v, num *aux, int i, int f)
 {
-    num *vetor_auxiliar = malloc(sizeof(num) * tamanho_vetor);
-    Sort(vetor_principal,vetor_auxiliar,0,tamanho_vetor-1);
-    free(vetor_auxiliar);
+    if (i < f)
+    {
+        int m = (i + f) / 2;
+        Sort(v, aux, i, m);
+        Sort(v, aux, m + 1, f);
+
+        if (v[m].value < v[m + 1].value)
+        {
+            Merge(v, aux, i, m, f);
+        }
+    }
+}
+
+void mergeSort(num *v, int tamanho)
+{
+    num *aux = malloc(sizeof(num) * tamanho);
+    Sort(v, aux, 0, tamanho - 1);
+    free(aux);
 }
 
 
@@ -296,11 +299,11 @@ void quicksortmeio(num *v, long int LI, long int LS)
 }
 
 
-void quicksortfim(num *v, int LI, int LS)
+void quicksortfim(num *v, long int LI, long int LS)
 {
     while (LI < LS)
     {
-        int p = particaofim(v, LI, LS);
+        long int p = particaofim(v, LI, LS);
         if  (p- LI < LS - p)
         {
             quicksortfim(v, LI, p-1);
@@ -384,14 +387,14 @@ num *determinatipo(int tipo, int tamseed, int tamvet, int tam[])
 
 int main()
 {
-    clock_t start, end, start_master, end_master;
+    struct timespec start, end, start_master;
     int tam[5] = {10000, 50000, 100000, 500000, 1000000};
     int tamseed[20] = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100};
-    int tamvet, tipo = 0;
+    int tamvet, tipo = 10;
     /// rodar o mesmo tamanho e mesmo tipo variando a seed de 0 a 9 e depois mudar para tipo 2 e rodar de 10 a 19
     /// depois mudar o tamanho e variar as seeds novamente
-    int a = 10;
-    start_master = clock();
+    int a = 0; ///seed dos vetores
+    clock_gettime(CLOCK_MONOTONIC, &start_master);
     num *vet;
 
     printf("Qual sera o tamanho do vetor desejado?\n[1]10000\n[2]50000\n[3]100000\n[4]500000\n[5]1000000\n -> ");
@@ -402,74 +405,83 @@ int main()
     printf("[TIPO 1]: Vetores com valor nao ordenado \n[TIPO 2]: Vetores com valores ordenados de forma crescente\n -> ");
     scanf("%d", &tipo);
 
-    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
     printf("\n\n\tORDENANDO VETORES, AGUARDE...\n\n");
 
-    start = clock();
+
+    for (int i = 0; i<10; i++)
+    {
+
+    vet = determinatipo(tipo, tamseed[a], tamvet, tam);
+    clock_gettime(CLOCK_MONOTONIC, &start);
     InsertionSort(vet, tam[tamvet - 1]);
-    end = clock();
-    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo Insertion: %.9f", time_taken);
-    free(vet);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+        double time_taken = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+        printf("\nTempo Insertion (Seed %d, Tipo %d): %.9f", a, tipo, time_taken);
+        free(vet);
 
 
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     bubbleSort(vet, tam[tamvet - 1]);
-    end = clock();
-    double time_taken2 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo Bubble: %.9f", time_taken2);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_taken2 = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nTempo Bubble (Seed %d, Tipo %d): %.9f", a, tipo,time_taken2);
     free(vet);
 
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     shellSort(vet, tam[tamvet - 1]);
-    end = clock();
-    double time_taken3 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo Shell: %.9f", time_taken3);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_taken3 = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nTempo Shell (Seed %d, Tipo %d): %.9f", a, tipo,time_taken3);
     free(vet);
 
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     mergeSort(vet, tam[tamvet - 1]);
-    end = clock();
-    double time_taken4 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo Merge: %.9f", time_taken4);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_taken4 = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nTempo Merge (Seed %d, Tipo %d): %.9f", a, tipo,time_taken4);
     free(vet);
 
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     heapSort(vet, tam[tamvet - 1]);
-    end = clock();
-    double time_taken5 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo Heap: %.9f", time_taken5);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_taken5 = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nTempo Heap (Seed %d, Tipo %d): %.9f", a, tipo,time_taken5);
     free(vet);
 
 
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     quicksort(vet,0, tam[tamvet-1]);
-    end = clock();
-    double time_taken6 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo QuickLI: %.9f", time_taken6);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_taken6 = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nTempo QuickLI (Seed %d, Tipo %d): %.9f", a, tipo,time_taken6);
     free(vet);
 
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     quicksortfim(vet,0, tam[tamvet-1]);
-    end = clock();
-    double time_taken7 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo QuickLS: %.9f", time_taken7);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_taken7 = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nTempo QuickLS (Seed %d, Tipo %d): %.9f", a, tipo,time_taken7);
     free(vet);
 
     vet = determinatipo(tipo, tamseed[a], tamvet, tam);
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     quicksortmeio(vet,0, tam[tamvet-1]);
-    end = clock();
-    double time_taken8 = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTempo QuickMeio: %.9f", time_taken8);
-    imprime_vetor(tam[tamvet-1],vet);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_taken8 = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nTempo QuickMeio (Seed %d, Tipo %d): %.15f", a, tipo,time_taken8);
     free(vet);
+
+
+    printf("\n\n");
+    a++;
+
+    }
 
     return 0;
 }
